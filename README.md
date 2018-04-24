@@ -1,2 +1,2 @@
 # libt
-Javascript library for object and array manipulation
+Javascript library for object manipulation

@@ -1,0 +1,31 @@
+{
+  "name": "libt",
+  "version": "0.0.0",
+  "description": "Javascript library for object manipulation",
+  "main": "index.js",
+  "scripts": {
+    "fix": "standard --fix || true",
+    "test": "node test.js | faucet || true"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marcodpt/libt.git"
+  },
+  "keywords": [
+    "array",
+    "object",
+    "library",
+    "lib"
+  ],
+  "author": "Marco Di Pillo Tomic",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/marcodpt/libt/issues"
+  },
+  "homepage": "https://github.com/marcodpt/libt",
+  "devDependencies": {
+    "faucet": "0.0.1",
+    "standard": "^11.0.1",
+    "tape": "^4.9.0"
+  }
+}

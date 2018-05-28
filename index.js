@@ -401,14 +401,14 @@ _.where = function (X) {
           result = v < x.value
         } else if (x.operator === '<=') {
           result = v <= x.value
-        } else if (x.operator === '~') {
-          if (x.value == null) {
-            result = false
-          } else {
-            result = String(v).toLowerCase().indexOf(String(x.value).toLowerCase()) !== -1
-          }
         } else {
+          var n = String(v).toLowerCase().indexOf(String(x.value).toLowerCase())
           result = false
+          if (x.operator === '~') {
+            result = n !== -1
+          } else if (x.operator === '!~') {
+            result = n === -1
+          }
         }
       })
 

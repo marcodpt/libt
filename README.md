@@ -52,7 +52,7 @@ npm install --save libt
 ```javascript
   var T = require('libt')
 
-  var result = T.path({
+  log(T.path({
     x: 'name',
     y: 'age',
     z: {
@@ -75,14 +75,16 @@ npm install --save libt
       ]
     },
     job: null
-  })
+  }))
+```
 
-  var result = {
-    x: 'John',
-    y: 35,
-    z: {
-      x: 'manga',
-      y: 3
+```json
+  {
+    "x": "John",
+    "y": 35,
+    "z": {
+      "x": "manga",
+      "y": 3
     }
   }
 ```
@@ -91,10 +93,10 @@ npm install --save libt
 ```javascript
   var T = require('libt')
 
-  var result = []
+  var R = []
 
   T.iterate(x => {
-    result.push(x)
+    R.push(x)
   })({
     name: 'John',
     age: 35,
@@ -113,18 +115,121 @@ npm install --save libt
     job: null
   })
 
-  var result = [
-    'John',
+  log(R)
+```
+
+```json
+  [
+    "John",
     35,
-    'apple',
-    'banana',
-    'manga',
-    'Clara',
+    "apple",
+    "banana",
+    "manga",
+    "Clara",
     3,
-    'Pedro',
+    "Pedro",
     2,
     null
   ]
+```
+
+### set
+```javascript
+  var T = require('libt')
+
+  var obj = {
+    name: 'John',
+    age: 35,
+    fruits: ['apple', 'banana', 'manga'],
+    info: {
+      sons: [
+        {
+          name: 'Clara',
+          age: 3
+        }, {
+          name: 'Pedro',
+          age: 2
+        }
+      ]
+    },
+    job: null
+  }
+
+  log(T.set('job.company.name', 'yyz')(obj))
+```
+
+```json
+  {
+    "name": "John",
+    "age": 35,
+    "fruits": ["apple", "banana", "manga"],
+    "info": {
+      "sons": [
+        {
+          "name": "Clara",
+          "age": 3
+        }, {
+          "name": "Pedro",
+          "age": 2
+        }
+      ]
+    },
+    "job": {
+      "company": {
+        "name": "yyz"
+      }
+    }
+  }
+```
+
+```javascript
+  log(T.set('info.sons.0')(obj))
+```
+
+```json
+  {
+    "name": "John",
+    "age": 35,
+    "fruits": ["apple", "banana", "manga"],
+    "info": {
+      "sons": [
+        {
+          "name": "Pedro",
+          "age": 2
+        }
+      ]
+    },
+    "job": null
+  }
+```
+
+### get
+```javascript
+  var T = require('libt')
+
+  var obj = {
+    name: 'John',
+    age: 35,
+    fruits: ['apple', 'banana', 'manga'],
+    info: {
+      sons: [
+        {
+          name: 'Clara',
+          age: 3
+        }, {
+          name: 'Pedro',
+          age: 2
+        }
+      ]
+    },
+    job: null
+  }
+
+  log(T.get('fruits.1')(obj)) //banana
+  log(T.get('age')(obj)) //35
+  log(T.get('job')(obj)) //null
+  log(T.get('info.sons.1.name')(obj)) //Pedro
+  log(T.get('info.sons.5.age')(obj)) //undefined
 ```
 
 ### compare
@@ -161,7 +266,7 @@ npm install --save libt
   log(T.sort()(V)) //[1, 2, 4, 6, 7, 8, 19, 32]
   log(T.sort('-')(V)) //[32, 19, 8, 7, 6, 4, 2, 1]
 
-  var result = T.sort(['tag', '-id'])([
+  log(T.sort(['tag', '-id'])([
     {id: 2, tag: 'plane'},
     {id: 8, tag: 'plane'},
     {id: 1, tag: 'car'},
@@ -170,16 +275,19 @@ npm install --save libt
     {id: 8, tag: 'train'},
     {id: 1, tag: 'bike'},
     {id: 7, tag: 'bike'}
-  ])
-  var result = [
-    {id: 7, tag: 'bike'},
-    {id: 1, tag: 'bike'},
-    {id: 7, tag: 'car'},
-    {id: 1, tag: 'car'},
-    {id: 8, tag: 'plane'},
-    {id: 2, tag: 'plane'},
-    {id: 8, tag: 'train'},
-    {id: 2, tag: 'train'}
+  ]))
+```
+
+```json
+  [
+    {"id": 7, "tag": "bike"},
+    {"id": 1, "tag": "bike"},
+    {"id": 7, "tag": "car"},
+    {"id": 1, "tag": "car"},
+    {"id": 8, "tag": "plane"},
+    {"id": 2, "tag": "plane"},
+    {"id": 8, "tag": "train"},
+    {"id": 2, "tag": "train"}
   ]
 ```
 
@@ -187,7 +295,9 @@ npm install --save libt
 ```javascript
   var T = require('libt')
 
-  var result = T.distinct({tag: 'tag'})([
+  log(T.distinct()([1, 5, 6, 8, 4, 2, 4, 1, 4, 2, 3, 7, 8])) //[1, 2, 3, 4, 5, 6, 7, 8]
+
+  log(T.distinct({tag: 'tag'})([
     {id: 2, tag: 'plane'},
     {id: 8, tag: 'plane'},
     {id: 1, tag: 'car'},
@@ -196,22 +306,23 @@ npm install --save libt
     {id: 8, tag: 'train'},
     {id: 1, tag: 'bike'},
     {id: 7, tag: 'bike'}
-  ])
-  var result = [
-    {tag: 'bike'},
-    {tag: 'car'},
-    {tag: 'plane'},
-    {tag: 'train'}
-  ]
+  ]))
+```
 
-  log(T.distinct()([1, 5, 6, 8, 4, 2, 4, 1, 4, 2, 3, 7, 8])) //[1, 2, 3, 4, 5, 6, 7, 8]
+```json
+  [
+    {"tag": "bike"},
+    {"tag": "car"},
+    {"tag": "plane"},
+    {"tag": "train"}
+  ]
 ```
 
 ### where
 ```javascript
   var T = require('libt')
 
-  var result = T.where([
+  log(T.where([
     {
       path: 'id',
       operator: '>',
@@ -230,12 +341,19 @@ npm install --save libt
     {id: 8, tag: 'train'},
     {id: 1, tag: 'bike'},
     {id: 7, tag: 'bike'}
-  ])
-  var result = [
-    {id: 7, tag: 'car'}
-  ]
+  ]))
+```
 
-  var result = T.where([
+```json
+  [
+    {"id": 7, "tag": "car"}
+  ]
+```
+
+```javascript
+  var T = require('libt')
+
+  log(T.where([
     {
       path: 'tag',
       operator: '~',
@@ -250,10 +368,13 @@ npm install --save libt
     {id: 8, tag: 'train'},
     {id: 1, tag: 'bike'},
     {id: 7, tag: 'bike'}
-  ])
-  var result = [
-    {id: 1, tag: 'car'},
-    {id: 7, tag: 'car'}
+  ]))
+```
+
+```json
+  [
+    {"id": 1, "tag": "car"},
+    {"id": 7, "tag": "car"}
   ]
 ```
 
@@ -261,22 +382,32 @@ npm install --save libt
 ```javascript
   var T = require('libt')
 
-  var result = T.merge({test: 'merge', fruit: 'apple'})({help: 'please', test: 'merge2'})
-  var result = {
-    test: 'merge2',
-    fruit: 'apple',
-    help: 'please'
-  }
+  log(T.merge({test: 'merge', fruit: 'apple'})({help: 'please', test: 'merge2'}))
+```
 
-  var result = T.merge([
+```json
+  {
+    "test": "merge2",
+    "fruit": "apple",
+    "help": "please"
+  }
+```
+
+```javascript
+  var T = require('libt')
+
+  log(T.merge([
     {test: 'merge', fruit: 'apple'},
     {test: 'array', fruit: 'banana'},
     {test: 'first', fruit: 'orange'}
-  ])({help: 'please', test: 'merge2'}), 
-  var result = [
-    {test: 'merge2', fruit: 'apple', help: 'please'},
-    {test: 'merge2', fruit: 'banana', help: 'please'},
-    {test: 'merge2', fruit: 'orange', help: 'please'}
+  ])({help: 'please', test: 'merge2'})) 
+```
+
+```json
+  [
+    {"test": "merge2", "fruit": "apple", "help": "please"},
+    {"test": "merge2", "fruit": "banana", "help": "please"},
+    {"test": "merge2", "fruit": "orange", "help": "please"}
   ]
 ```
 
@@ -284,7 +415,7 @@ npm install --save libt
 ```javascript
   var T = require('libt')
 
-  var result = T.group({}, {N: 'sum("1")', Total: 'sum("$.id")'})([
+  log(T.group({}, {N: 'sum("1")', Total: 'sum("$.id")'})([
     {id: 2, tag: 'plane'},
     {id: 8, tag: 'plane'},
     {id: 1, tag: 'car'},
@@ -293,12 +424,19 @@ npm install --save libt
     {id: 8, tag: 'train'},
     {id: 1, tag: 'bike'},
     {id: 7, tag: 'bike'}
-  ])
-  var result = [
-    {N: 8, Total: 36}
-  ]
+  ]))
+```
 
-  var result = T.group({tag: 'tag'}, {N: 'sum("1")', Total: 'sum("$.id")'})([
+```json
+  [
+    {"N": 8, "Total": 36}
+  ]
+```
+
+```javascript
+  var T = require('libt')
+
+  log(T.group({tag: 'tag'}, {N: 'sum("1")', Total: 'sum("$.id")'})([
     {id: 2, tag: 'plane'},
     {id: 1, tag: 'car'},
     {id: 8, tag: 'train'},
@@ -307,12 +445,15 @@ npm install --save libt
     {id: 1, tag: 'bike'},
     {id: 7, tag: 'car'},
     {id: 7, tag: 'bike'}
-  ])
-  var result = [
-    {tag: 'bike', N: 2, Total: 8},
-    {tag: 'car', N: 2, Total: 8},
-    {tag: 'plane', N: 2, Total: 10},
-    {tag: 'train', N: 2, Total: 10}
+  ]))
+```
+
+```json
+  [
+    {"tag": "bike", "N": 2, "Total": 8},
+    {"tag": "car", "N": 2, "Total": 8},
+    {"tag": "plane", "N": 2, "Total": 10},
+    {"tag": "train", "N": 2, "Total": 10}
   ]
 ```
 
@@ -331,24 +472,37 @@ npm install --save libt
     {id: 7, tag: 'bike'}
   ]
 
-  var result = T.pager(3)(1)(V)
-  var result = [
-    {id: 2, tag: 'plane'},
-    {id: 1, tag: 'car'},
-    {id: 8, tag: 'train'}
-  ]
+  log(T.pager(3)(1)(V))
+```
 
-  var result = T.pager(3)(2)(V)
-  var result = [
-    {id: 8, tag: 'plane'},
-    {id: 2, tag: 'train'},
-    {id: 1, tag: 'bike'}
+```json
+  [
+    {"id": 2, "tag": 'plane'},
+    {"id": 1, "tag": 'car'},
+    {"id": 8, "tag": 'train'}
   ]
+```
 
-  var result = T.pager(3)(3)(V)
-  var result = [
-    {id: 7, tag: 'car'},
-    {id: 7, tag: 'bike'}
+```javascript
+  log(T.pager(3)(2)(V))
+```
+
+```json
+  [
+    {"id": 8, "tag": 'plane'},
+    {"id": 2, "tag": 'train'},
+    {"id": 1, "tag": 'bike'}
+  ]
+```
+
+```javascript
+  log(T.pager(3)(3)(V))
+```
+
+```json
+  [
+    {"id": 7, "tag": 'car'},
+    {"id": 7, "tag": 'bike'}
   ]
 ```
 
@@ -431,4 +585,6 @@ npm install --save libt
   var T = require('libt')
 
   log(T.replaceAll(' ')('Hello! My name is Mario!')) //Hello!MynameisMario!
+  log(T.replaceAll(' ', '*')('Hello! My name is Mario!')) //Hello!*My*name*is*Mario!
+  log(T.replaceAll(', ', ';')('A, B, C, D, F, G')) //A;B;C;D;F;G
 ```

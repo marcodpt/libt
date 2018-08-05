@@ -1,8 +1,8 @@
 'use strict'
-var _ = {}
+var T = {}
 
 /* mix */
-_.debug = function () {
+T.debug = function () {
   for (var i = 0; i < arguments.length; i++) {
     if (typeof arguments[i] === 'object' && arguments[i] != null) {
       console.log(JSON.stringify(arguments[i], undefined, 2))
@@ -12,7 +12,7 @@ _.debug = function () {
   }
 }
 
-_.compose = function () {
+T.compose = function () {
   var args = arguments
   return (X) => {
     for (var i = args.length - 1; i >= 0; i--) {
@@ -22,7 +22,7 @@ _.compose = function () {
   }
 }
 
-_.evaluate = function (expression) {
+T.evaluate = function (expression) {
   const step = (expression, $) => {
     function sum (e) {
       var sum
@@ -69,7 +69,7 @@ _.evaluate = function (expression) {
   }
 }
 
-_.parse = function (format) {
+T.parse = function (format) {
   return value => {
     if (value == null || !(typeof format === 'string')) {
       if (!(typeof format === 'string')) {
@@ -119,7 +119,7 @@ _.parse = function (format) {
     } else if (type === 'date') {
       if (value instanceof Date) {
         return value.toISOString().substr(0, 10)
-      } else if (_.match('date')(value)) {
+      } else if (T.match('date')(value)) {
         return String(value).substr(0, 10)
       } else {
         return ''
@@ -129,7 +129,7 @@ _.parse = function (format) {
 }
 
 /* string and regex */
-_.match = function (regex) {
+T.match = function (regex) {
   return (X) => {
     if (regex === 'integer') {
       regex = /^[+-]?\d+$/
@@ -149,7 +149,7 @@ _.match = function (regex) {
   }
 }
 
-_.randomId = function (type) {
+T.randomId = function (type) {
   var set
   if (type === 'int') {
     set = '0123456789'
@@ -175,7 +175,7 @@ _.randomId = function (type) {
   }
 }
 
-_.replaceAll = function (search, replacement) {
+T.replaceAll = function (search, replacement) {
   search = search == null ? '' : String(search)
   replacement = replacement == null ? '' : String(replacement)
   return str => {
@@ -184,49 +184,106 @@ _.replaceAll = function (search, replacement) {
 }
 
 /* array and object */
-_.iterate = function (callback) {
-  const step = (X) => {
+T.iterate = function (callback) {
+  const step = (X, path) => {
     if (X != null && typeof X === 'object') {
+      path = path ? `${path}.` : path
       if (X.forEach) {
         X.forEach((x, i) => {
           if (typeof x !== 'object') {
-            X[i] = callback(X[i])
+            X[i] = callback(X[i], `${path}${i}`)
           } else {
-            step(X[i])
+            step(X[i], `${path}${i}`)
           }
         })
       } else {
         Object.keys(X).forEach(key => {
           if (typeof X[key] !== 'object') {
-            X[key] = callback(X[key])
+            X[key] = callback(X[key], `${path}${key}`)
           } else {
-            step(X[key])
+            step(X[key], `${path}${key}`)
           }
         })
       }
       return X
     } else {
-      return callback(X)
+      return callback(X, path)
     }
   }
 
   return X => {
-    return step(_.copy(X))
+    return step(T.copy(X), '')
   }
 }
 
-_.copy = function (X) {
+T.set = function (path, value) {
+  return X => {
+    if (!path) {
+      return value
+    }
+
+    var Keys = path.split('.')
+    var key = Keys.pop()
+
+    var R = T.copy(X) 
+    var x = R
+    Keys.forEach(k => {
+      if (x && x[k] == null) {
+        if (value !== undefined) {
+          x[k] = {}
+        }
+      } 
+      if (x != null) {
+        x = x[k]
+      }
+    })
+
+    if (x != null) {
+      if (value === undefined) {
+        if (x instanceof Array) {
+          x.splice(key, 1)
+        } else {
+          delete x[key]
+        }
+      } else {
+        x[key] = value
+      }
+    }
+
+    return R
+  }
+}
+
+T.get = function (path) {
+  return X => {
+    var x = X
+
+    if (path) {
+      path.split('.').forEach (key => {
+        if (x != null && typeof x === 'object') {
+          x = x[key]
+        } else {
+          x = undefined
+        }
+      })
+    }
+
+    return x
+  }
+}
+
+T.copy = function (X) {
   var y
   if (typeof X === 'object' && X != null) {
     if (X.forEach) {
       y = []
       X.forEach(x => {
-        y.push(_.copy(x))
+        y.push(T.copy(x))
       })
     } else {
       y = {}
       Object.keys(X).forEach(key => {
-        y[key] = _.copy(X[key])
+        y[key] = T.copy(X[key])
       })
     }
   } else {
@@ -236,18 +293,18 @@ _.copy = function (X) {
   return y
 }
 
-_.path = function (P) {
+T.path = function (P) {
   const step = (X, Q) => {
     if (Q == null) {
-      return _.copy(X)
+      return T.copy(X)
     } else if (Q instanceof Array) {
-      Q = _.copy(Q)
+      Q = T.copy(Q)
       Q.forEach((q, i) => {
         Q[i] = step(X, Q[i])
       })
       return Q
     } else if (typeof Q === 'object') {
-      Q = _.copy(Q)
+      Q = T.copy(Q)
       Object.keys(Q).forEach(key => {
         Q[key] = step(X, Q[key])
       })
@@ -260,7 +317,7 @@ _.path = function (P) {
       } catch (err) {
         X = undefined
       }
-      return _.copy(X)
+      return T.copy(X)
     }
   }
 
@@ -269,7 +326,7 @@ _.path = function (P) {
   }
 }
 
-_.compare = function (X) {
+T.compare = function (X) {
   const step = (X, Y) => {
     var r = 0
     if (X == null) {
@@ -311,7 +368,7 @@ _.compare = function (X) {
   }
 }
 
-_.sort = function (X) {
+T.sort = function (X) {
   var P = []
   if (!(X instanceof Array)) {
     X = [X]
@@ -319,19 +376,19 @@ _.sort = function (X) {
   X.forEach(x => {
     if (x && x[0] === '-') {
       P.push({
-        path: _.path(x.substr(1) || null),
+        path: T.path(x.substr(1) || null),
         reverse: true
       })
     } else {
       P.push({
-        path: _.path(x || null),
+        path: T.path(x || null),
         reverse: false
       })
     }
   })
 
   return V => {
-    var U = _.copy(V)
+    var U = T.copy(V)
     if (typeof U.sort !== 'function') {
       return U
     }
@@ -348,27 +405,27 @@ _.sort = function (X) {
         }
       })
 
-      return _.compare(A)(B)
+      return T.compare(A)(B)
     })
     return U
   }
 }
 
-_.distinct = function (X) {
+T.distinct = function (X) {
   var S = []
-  _.iterate(x => {
+  T.iterate(x => {
     S.push(x)
   })(X)
 
   return V => {
-    var path = _.path(X)
-    var R = _.sort(S)(V)
+    var path = T.path(X)
+    var R = T.sort(S)(V)
     if (typeof R.reduce !== 'function') {
       return R
     }
     return R.reduce(function (U, v) {
       v = path(v)
-      if (!U.length || _.compare(U[U.length - 1])(v)) {
+      if (!U.length || T.compare(U[U.length - 1])(v)) {
         U.push(v)
       }
       return U
@@ -376,7 +433,7 @@ _.distinct = function (X) {
   }
 }
 
-_.where = function (X) {
+T.where = function (X) {
   if (!(X instanceof Array)) {
     X = [X]
   }
@@ -388,7 +445,7 @@ _.where = function (X) {
           result = false
           return
         }
-        var v = _.path(x.path)(w)
+        var v = T.path(x.path)(w)
         if (x.operator === '===') {
           result = v === x.value
         } else if (x.operator === '!==') {
@@ -417,7 +474,7 @@ _.where = function (X) {
   }
 }
 
-_.merge = function (X) {
+T.merge = function (X) {
   const step = (A, B) => {
     var R
     if (A == null || typeof A !== 'object' || B == null || typeof B !== 'object') {
@@ -447,17 +504,17 @@ _.merge = function (X) {
   }
 
   return Y => {
-    return step(_.copy(X), _.copy(Y))
+    return step(T.copy(X), T.copy(Y))
   }
 }
 
-_.group = function (X, Y) {
+T.group = function (X, Y) {
   return V => {
-    var U = _.distinct(X)(V)
+    var U = T.distinct(X)(V)
 
     U.forEach((u, i) => {
-      U[i] = _.compose(_.merge(U[i]), _.iterate(y => {
-        return _.evaluate(y)(V.filter(v => _.compare(u)(v) === 0))
+      U[i] = T.compose(T.merge(U[i]), T.iterate(y => {
+        return T.evaluate(y)(V.filter(v => T.compare(u)(v) === 0))
       }))(Y)
     })
 
@@ -465,7 +522,7 @@ _.group = function (X, Y) {
   }
 }
 
-_.pager = function (size) {
+T.pager = function (size) {
   size = parseInt(size) || 0
   return X => {
     if (X instanceof Array) {
@@ -484,4 +541,4 @@ _.pager = function (size) {
   }
 }
 
-module.exports = _
+module.exports = T

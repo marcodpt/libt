@@ -477,9 +477,9 @@ npm install --save libt
 
 ```json
   [
-    {"id": 2, "tag": 'plane'},
-    {"id": 1, "tag": 'car'},
-    {"id": 8, "tag": 'train'}
+    {"id": 2, "tag": "plane"},
+    {"id": 1, "tag": "car"},
+    {"id": 8, "tag": "train"}
   ]
 ```
 
@@ -489,9 +489,9 @@ npm install --save libt
 
 ```json
   [
-    {"id": 8, "tag": 'plane'},
-    {"id": 2, "tag": 'train'},
-    {"id": 1, "tag": 'bike'}
+    {"id": 8, "tag": "plane"},
+    {"id": 2, "tag": "train"},
+    {"id": 1, "tag": "bike"}
   ]
 ```
 
@@ -501,8 +501,8 @@ npm install --save libt
 
 ```json
   [
-    {"id": 7, "tag": 'car'},
-    {"id": 7, "tag": 'bike'}
+    {"id": 7, "tag": "car"},
+    {"id": 7, "tag": "bike"}
   ]
 ```
 

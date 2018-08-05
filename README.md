@@ -133,6 +133,49 @@ npm install --save libt
   ]
 ```
 
+```javascript
+  var T = require('libt')
+
+  var P = []
+
+  T.iterate((x, p) => {
+    P.push(p)
+  })({
+    name: 'John',
+    age: 35,
+    fruits: ['apple', 'banana', 'manga'],
+    info: {
+      sons: [
+        {
+          name: 'Clara',
+          age: 3
+        }, {
+          name: 'Pedro',
+          age: 2
+        }
+      ]
+    },
+    job: null
+  })
+
+  log(P)
+```
+
+```json
+  [
+    "name",
+    "age",
+    "fruits.0",
+    "fruits.1",
+    "fruits.2",
+    "info.sons.0.name",
+    "info.sons.0.age",
+    "info.sons.1.name",
+    "info.sons.1.age",
+    "job"
+  ]
+```
+
 ### set
 ```javascript
   var T = require('libt')

@@ -1224,3 +1224,61 @@ test('#replaceAll', function (assert) {
 
   assert.end()
 })
+
+test('#identity', function (assert) {
+  assert.deepEqual(T.identity(1), 1)
+  assert.deepEqual(T.identity(true), true)
+  assert.deepEqual(T.identity(null), null)
+  assert.deepEqual(T.identity())
+  assert.deepEqual(T.identity(T.identity), T.identity)
+  assert.notEqual(T.identity([]), [])
+  assert.notEqual(T.identity({}), {})
+  assert.deepEqual(stringify(T.identity([])), stringify([]))
+  assert.deepEqual(stringify(T.identity({})), stringify({}))
+
+  var x = [], y = {}
+  assert.deepEqual(T.identity(x), x)
+  assert.deepEqual(T.identity(y), y)
+
+  assert.end()
+})
+
+test('#contains', function (assert) {
+  var animals = ['horse', 'dog', 'cat', 'bird', 'lion', 'tiger']
+
+  assert.deepEqual(T.contains(animals)('cat'), true)
+  assert.deepEqual(T.contains(animals)('js'), false)
+  assert.deepEqual(T.contains(animals)(T.identity), animals)
+
+  assert.end()
+})
+
+test('#sync', function (assert) {
+  var X = ['cat', 'ball']
+  var P = X
+  var Y = ['dog', 'house', 'bird']
+  T.sync(X, Y)
+
+  assert.deepEqual(X === Y, false)
+  assert.deepEqual(P === X, true)
+  assert.deepEqual(stringify(X), stringify(Y))
+  assert.deepEqual(stringify(X), stringify(['dog', 'house', 'bird']))
+
+  var X = {pet: 'cat', it: 'ball'}
+  var P = X
+  var Y = {pet: ['dog', 'bird'], location: 'house'}
+  T.sync(X, Y)
+
+  assert.deepEqual(X === Y, false)
+  assert.deepEqual(P === X, true)
+  assert.deepEqual(stringify(X), stringify(Y))
+  assert.deepEqual(stringify(X), stringify({pet: ['dog', 'bird'], location: 'house'}))
+
+  assert.end()
+})
+
+test('#download', function (assert) {
+  assert.deepEqual(T.download(null, 'myFile', 'content'))
+
+  assert.end()
+})

@@ -1,7 +1,6 @@
 'use strict'
 var T = {}
 
-/* mix */
 T.debug = function () {
   for (var i = 0; i < arguments.length; i++) {
     if (typeof arguments[i] === 'object' && arguments[i] != null) {
@@ -539,6 +538,239 @@ T.pager = function (size) {
       }
     }
   }
+}
+
+/**
+ * Identity function.
+ *
+ * @func identity 
+ * @param {mixed} X
+ * @return {mixed}
+ * @example
+ *
+ * T.identity(2) //=> 2
+ * T.identity(['bar', 'foo']) //=> ['bar', 'foo']
+ */
+T.identity = function (X) {
+  return X
+}
+
+/**
+ * Check if value belongs to array.
+ *
+ * @func contains
+ * @param {array|string} source
+ * @param {mixed} value
+ * @return {boolean|array|string}
+ * @example
+ *
+ * T.contains(['cat', 'ball'], 'cat') //=> true
+ * T.contains(['cat', 'ball'], 'dog') //=> false
+ * T.contains(['cat', 'ball'], T.identity) //=> ['cat', 'ball']
+ */
+T.contains = function (source) {
+  return function (value) {
+    if (value === T.identity) {
+      return source 
+    } else {
+      return source && source.indexOf && source.indexOf(value) !== -1
+    }
+  }
+}
+
+/**
+ * Sync two objects preserving pointer. With side effect for dom update.
+ *
+ * @func contains
+ * @param {object} Output - Object that will be modified for syncronization 
+ * @param {object} Input - Object that will not be modified, only data source
+ * @param {syncFnc} syncFnc - Function that will change values like Vue.$set
+ * @callback syncFnc
+ * @param {object} obj - Object that will not be modified
+ * @param {string} key - key that will be modified
+ * @param {mixed} value - new value to obj[key]
+ * @example
+ *
+ * var X = ['cat', 'ball']
+ * var P = X
+ * var Y = ['dog', 'house', 'bird']
+ * T.sync(X, Y)
+ *
+ * X === Y //=> false
+ * P === X //=> true
+ * X //=> ['dog', 'house', 'bird']
+ * Y //=> ['dog', 'house', 'bird']
+ *
+ * var X = {pet: 'cat', it: 'ball'}
+ * var P = X
+ * var Y = {pet: ['dog', 'bird'], location: 'house'}
+ * T.sync(X, Y)
+ *
+ * X === Y //=> false
+ * P === X //=> true
+ * X //=> {pet: ['dog', 'bird'], location: 'house'}
+ * Y //=> {pet: ['dog', 'bird'], location: 'house'}
+ */
+T.sync = function (Output, Input, syncFnc) {
+  if (Output instanceof Array && Input instanceof Array) {
+    while (Output.length > 0) {
+      Output.pop()
+    }
+    Input.forEach(row => {
+      Output.push(row)
+    })
+  }
+
+  if (typeof syncFnc !== 'function') {
+    syncFnc = function (obj, key, value) {
+      obj[key] = value
+    }
+  }
+
+  Object.keys(Output).forEach(key => {
+    if (Input[key] === undefined) {
+      syncFnc(Output, key)
+    }
+  })
+  Object.keys(Input).forEach(key => {
+    syncFnc(Output, key, Input[key])
+  })
+}
+
+/**
+ * format raw database data into human readable data
+ *
+ * @func format
+ * @param {mixed} value - raw value
+ * @param {string} format - String with format
+ * @param {translateFnc} translateFnc - Function that will return some values: trueLabel, falseLabel, numberSeparator, decimalSeparator, date (ex.yyyy-MM-dd)
+ * @callback translateFnc
+ * @param {string} query - information queried
+ * @return {string} formatted data
+ * @example
+ *
+ * T.download(window.document, 'myFile', 'content')
+ *
+ */
+T.format = function (value, format, translate) {
+  if (value === null || value === undefined) {
+    return ''
+  }
+  if (typeof translate !== 'function') {
+    translate = () => {}
+  }
+
+  if (typeof format !== 'string') {
+    format = ''
+  }
+
+  var F = format.split(':')
+  var type = F[0]
+  var p1 = parseInt(F[1] || 0)
+  var x, s
+
+  if (type === 'boolean') {
+    if (value && value !== '0' && value !== 'false') {
+      return translate('trueLabel') || 'true'
+    } else {
+      return translate('falseLabel') || 'false'
+    }
+  } else if (type === 'integer') {
+    x = parseInt(value)
+    if (!isNaN(x)) {
+      s = String(x)
+      while (s.length < p1) {
+        s = '0' + s
+      }
+      return s
+    }
+  } else if (type === 'number') {
+    x = parseFloat(value)
+    if (!isNaN(x)) {
+      if (p1 > 0 || (p1 === 0 && F[1] === '0')) {
+        s = String(x.toFixed(p1))
+      } else {
+        s = String(x)
+      }
+      var N = s.split('.')
+      N[0] = N[0].replace(/(\d)(?=(\d{3})+$)/g, '$1' + (translate('numberSeparator') || ','))
+      N[1] = N.length > 1 ? (translate('decimalSeparator') || '.') + N[1] : ''
+      return N[0] + N[1]
+    }
+  } else if (type === 'string') {
+    s = String(value)
+    if (F.indexOf('rgb') > -1) {
+      return ''
+    }
+    if (p1) {
+      return s.substr(0, p1)
+    }
+    return s
+  } else if (type === 'date' && T.match('date')(value)) {
+    s = String(value)
+    var D = {
+      yyyy: s.substr(0, 4),
+      yy: s.substr(2, 2),
+      MM: s.substr(5, 2),
+      M: parseInt(s.substr(5, 2)),
+      dd: s.substr(8, 2),
+      d: parseInt(s.substr(8, 2))
+    }
+    x = translate('date') || 'yyyy-MM-dd'
+    Object.keys(D).forEach(function (key) {
+      x = x.replace(new RegExp(key, 'g'), D[key])
+    })
+    return x
+  }
+
+  return String(value)
+}
+
+/**
+ * trigger browser download 
+ *
+ * @func download 
+ * @param {object} document - Browser object
+ * @param {string} name - File name on download prompt
+ * @param {string} file - File content
+ * @param {string} type - Add some mime type, available types: text
+ * @example
+ *
+ * T.download(window.document, 'myFile', 'content')
+ *
+ */
+T.download = function (document, name, file, type) {
+  if (!document) {
+    return
+  }
+
+  if (type === 'text') {
+    file = 'data:text/plain;charset=utf-8,' + encodeURI(file) 
+  }
+
+  var a = document.createElement('a')
+  a.href = file
+  a.target = '_blank'
+  a.download = name
+
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+}
+
+/**
+ * Install in vue js as plugin, with side effect
+ *
+ * @func install
+ * @param {object} Vue - VueJs constructor 
+ * @example
+ *
+ * import T from 'libt'
+ *
+ * Vue.use(T)
+ */
+T.install = function (Vue, name = '$T') {
+  Object.defineProperty(Vue.prototype, name);
 }
 
 module.exports = T

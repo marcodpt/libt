@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "fix": "standard --fix || true",
-    "test": "node test.js | faucet || true"
+    "test": "node test.js | faucet || true",
+    "docs": "jsdoc index.js",
+    "server": "http-server ./out -a localhost -p 8080"
   },
   "repository": {
     "type": "git",
@@ -25,7 +27,10 @@
   "homepage": "https://github.com/marcodpt/libt",
   "devDependencies": {
     "faucet": "0.0.1",
+    "http-server": "^0.11.1",
+    "jsdoc": "^3.5.5",
     "standard": "^11.0.1",
     "tape": "^4.9.0"
-  }
+  },
+  "dependencies": {}
 }

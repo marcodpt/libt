@@ -127,7 +127,7 @@ T.parse = function (format) {
   }
 }
 
-/* string and regex */
+/* string and regex*/
 T.match = function (regex) {
   return (X) => {
     if (regex === 'integer') {
@@ -182,7 +182,7 @@ T.replaceAll = function (search, replacement) {
   }
 }
 
-/* array and object */
+/* array and object*/
 T.iterate = function (callback) {
   const step = (X, path) => {
     if (X != null && typeof X === 'object') {
@@ -540,34 +540,34 @@ T.pager = function (size) {
   }
 }
 
-/**
- * Identity function.
- *
- * @func identity 
- * @param {mixed} X
- * @return {mixed}
- * @example
- *
- * T.identity(2) //=> 2
- * T.identity(['bar', 'foo']) //=> ['bar', 'foo']
- */
+/*
+  Identity function.
+
+  @func identity 
+  @param {mixed} X
+  @return {mixed}
+  @example
+
+  T.identity(2) //=> 2
+  T.identity(['bar', 'foo']) //=> ['bar', 'foo']
+*/
 T.identity = function (X) {
   return X
 }
 
-/**
- * Check if value belongs to array.
- *
- * @func contains
- * @param {array|string} source
- * @param {mixed} value
- * @return {boolean|array|string}
- * @example
- *
- * T.contains(['cat', 'ball'], 'cat') //=> true
- * T.contains(['cat', 'ball'], 'dog') //=> false
- * T.contains(['cat', 'ball'], T.identity) //=> ['cat', 'ball']
- */
+/*
+  Check if value belongs to array.
+
+  @func contains
+  @param {array|string} source
+  @param {mixed} value
+  @return {boolean|array|string}
+  @example
+
+  T.contains(['cat', 'ball'], 'cat') //=> true
+  T.contains(['cat', 'ball'], 'dog') //=> false
+  T.contains(['cat', 'ball'], T.identity) //=> ['cat', 'ball']
+*/
 T.contains = function (source) {
   return function (value) {
     if (value === T.identity) {
@@ -578,39 +578,39 @@ T.contains = function (source) {
   }
 }
 
-/**
- * Sync two objects preserving pointer. With side effect for dom update.
- *
- * @func contains
- * @param {object} Output - Object that will be modified for syncronization 
- * @param {object} Input - Object that will not be modified, only data source
- * @param {syncFnc} syncFnc - Function that will change values like Vue.$set
- * @callback syncFnc
- * @param {object} obj - Object that will not be modified
- * @param {string} key - key that will be modified
- * @param {mixed} value - new value to obj[key]
- * @example
- *
- * var X = ['cat', 'ball']
- * var P = X
- * var Y = ['dog', 'house', 'bird']
- * T.sync(X, Y)
- *
- * X === Y //=> false
- * P === X //=> true
- * X //=> ['dog', 'house', 'bird']
- * Y //=> ['dog', 'house', 'bird']
- *
- * var X = {pet: 'cat', it: 'ball'}
- * var P = X
- * var Y = {pet: ['dog', 'bird'], location: 'house'}
- * T.sync(X, Y)
- *
- * X === Y //=> false
- * P === X //=> true
- * X //=> {pet: ['dog', 'bird'], location: 'house'}
- * Y //=> {pet: ['dog', 'bird'], location: 'house'}
- */
+/*
+  Sync two objects preserving pointer. With side effect for dom update.
+
+  @func contains
+  @param {object} Output - Object that will be modified for syncronization 
+  @param {object} Input - Object that will not be modified, only data source
+  @param {syncFnc} syncFnc - Function that will change values like Vue.$set
+  @callback syncFnc
+  @param {object} obj - Object that will not be modified
+  @param {string} key - key that will be modified
+  @param {mixed} value - new value to obj[key]
+  @example
+
+  var X = ['cat', 'ball']
+  var P = X
+  var Y = ['dog', 'house', 'bird']
+  T.sync(X, Y)
+
+  X === Y //=> false
+  P === X //=> true
+  X //=> ['dog', 'house', 'bird']
+  Y //=> ['dog', 'house', 'bird']
+
+  var X = {pet: 'cat', it: 'ball'}
+  var P = X
+  var Y = {pet: ['dog', 'bird'], location: 'house'}
+  T.sync(X, Y)
+
+  X === Y //=> false
+  P === X //=> true
+  X //=> {pet: ['dog', 'bird'], location: 'house'}
+  Y //=> {pet: ['dog', 'bird'], location: 'house'}
+*/
 T.sync = function (Output, Input, syncFnc) {
   if (Output instanceof Array && Input instanceof Array) {
     while (Output.length > 0) {
@@ -637,21 +637,29 @@ T.sync = function (Output, Input, syncFnc) {
   })
 }
 
-/**
- * format raw database data into human readable data
- *
- * @func format
- * @param {mixed} value - raw value
- * @param {string} format - String with format
- * @param {translateFnc} translateFnc - Function that will return some values: trueLabel, falseLabel, numberSeparator, decimalSeparator, date (ex.yyyy-MM-dd)
- * @callback translateFnc
- * @param {string} query - information queried
- * @return {string} formatted data
- * @example
- *
- * T.download(window.document, 'myFile', 'content')
- *
- */
+/*
+  format raw database data into human readable data
+
+  @func format
+  @param {mixed} value - raw value
+  @param {string} format - String with format
+  @param {translateFnc} translateFnc - Function that will return some values: trueLabel, falseLabel, numberSeparator, decimalSeparator, date (ex.yyyy-MM-dd)
+  @callback translateFnc
+  @param {string} query - information queried
+  @return {string} formatted data
+  @example
+
+  T.format(2.58, 'boolean') //=> true
+  T.format(2.58, 'integer') //=> 2
+  T.format(2.58, 'integer:4') //=> 0002
+  T.format(2.58, 'number') //=> 2.58
+  T.format(2.58, 'number:1') //=> 2.6
+  T.format(2.58, 'number:3') //=> 2.580
+  T.format('2018-08-31T12:18:46+00:00', 'string') //=> 2018-08-31T12:18:46+00:00
+  T.format('2018-08-31T12:18:46+00:00', 'string:10') //=> 2018-08-31
+  T.format('2018-08-31T12:18:46+00:00', 'date') //=> 2018-08-31
+
+*/
 T.format = function (value, format, translate) {
   if (value === null || value === undefined) {
     return ''
@@ -693,7 +701,7 @@ T.format = function (value, format, translate) {
         s = String(x)
       }
       var N = s.split('.')
-      N[0] = N[0].replace(/(\d)(?=(\d{3})+$)/g, '$1' + (translate('numberSeparator') || ','))
+      N[0] = N[0].replace(/(\d)(?=(\d{3})+$)/g, '$1' + (translate('numberSeparator') || ''))
       N[1] = N.length > 1 ? (translate('decimalSeparator') || '.') + N[1] : ''
       return N[0] + N[1]
     }
@@ -726,19 +734,19 @@ T.format = function (value, format, translate) {
   return String(value)
 }
 
-/**
- * trigger browser download 
- *
- * @func download 
- * @param {object} document - Browser object
- * @param {string} name - File name on download prompt
- * @param {string} file - File content
- * @param {string} type - Add some mime type, available types: text
- * @example
- *
- * T.download(window.document, 'myFile', 'content')
- *
- */
+/*
+  trigger browser download 
+
+  @func download 
+  @param {object} document - Browser object
+  @param {string} name - File name on download prompt
+  @param {string} file - File content
+  @param {string} type - Add some mime type, available types: text
+  @example
+
+  T.download(window.document, 'myFile', 'content')
+
+*/
 T.download = function (document, name, file, type) {
   if (!document) {
     return
@@ -758,17 +766,17 @@ T.download = function (document, name, file, type) {
   document.body.removeChild(a)
 }
 
-/**
- * Install in vue js as plugin, with side effect
- *
- * @func install
- * @param {object} Vue - VueJs constructor 
- * @example
- *
- * import T from 'libt'
- *
- * Vue.use(T)
- */
+/*
+  Install in vue js as plugin, with side effect
+
+  @func install
+  @param {object} Vue - VueJs constructor 
+  @example
+
+  import T from 'libt'
+
+  Vue.use(T)
+*/
 T.install = function (Vue, name = '$T') {
   Object.defineProperty(Vue.prototype, name);
 }

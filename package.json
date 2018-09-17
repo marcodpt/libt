@@ -1,6 +1,6 @@
 {
   "name": "libt",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Javascript library for object manipulation",
   "main": "index.js",
   "scripts": {

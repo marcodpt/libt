@@ -1015,13 +1015,13 @@ test('#parse', function (assert) {
   var True = [1, '1', 'true', -0.01, [], {}, true]
 
   True.forEach(function (x) {
-    assert.deepEqual(T.parse('boolean')(x), 1)
+    assert.deepEqual(T.parse('boolean')(x), true)
   })
 
   var False = [0, '0', 'false', false, '', undefined, null]
 
   False.forEach(function (x) {
-    assert.deepEqual(T.parse('boolean')(x), 0)
+    assert.deepEqual(T.parse('boolean')(x), false)
   })
 
   assert.deepEqual(T.parse('integer')('-21.c'), -21)
@@ -1273,24 +1273,6 @@ test('#sync', function (assert) {
   assert.deepEqual(P === X, true)
   assert.deepEqual(stringify(X), stringify(Y))
   assert.deepEqual(stringify(X), stringify({pet: ['dog', 'bird'], location: 'house'}))
-
-  assert.end()
-})
-
-test('#format', function (assert) {
-
-  assert.deepEqual(T.format(), '') 
-  assert.deepEqual(T.format(null), '') 
-  assert.deepEqual(T.format(2.58), '2.58') 
-  assert.deepEqual(T.format(2.58, 'boolean'), 'true') 
-  assert.deepEqual(T.format(2.58, 'integer'), '2') 
-  assert.deepEqual(T.format(2.58, 'integer:4'), '0002') 
-  assert.deepEqual(T.format(2.58, 'number'), '2.58') 
-  assert.deepEqual(T.format(2.58, 'number:1'), '2.6') 
-  assert.deepEqual(T.format(2.58, 'number:3'), '2.580') 
-  assert.deepEqual(T.format('2018-08-31T12:18:46+00:00', 'string'), '2018-08-31T12:18:46+00:00') 
-  assert.deepEqual(T.format('2018-08-31T12:18:46+00:00', 'string:10'), '2018-08-31') 
-  assert.deepEqual(T.format('2018-08-31T12:18:46+00:00', 'date'), '2018-08-31')
 
   assert.end()
 })
